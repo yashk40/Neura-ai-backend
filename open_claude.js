@@ -40,9 +40,12 @@ const getConfig = () => {
             headless: true,
             defaultViewport: null,
             args: [
-                '--start-maximized',
-                '--no-sandbox',
-                '--disable-setuid-sandbox'
+                // '--start-maximized',
+                // '--no-sandbox',
+                // '--disable-setuid-sandbox'
+                "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage"
             ]
         });
 
