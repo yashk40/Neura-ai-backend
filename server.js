@@ -28,6 +28,7 @@ async function generateCode(prompt, requestId) {
         requests.set(requestId, { status: 'processing', code: null, prompt });
 
         browser = await puppeteer.launch({
+            executablePath:"/usr/bin/google-chrome",
             headless: true,
             defaultViewport: null,
             args: [
