@@ -36,15 +36,19 @@ const getConfig = () => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            headless: false,
+       executablePath:"/usr/bin/google-chrome",
+            headless: true,
             defaultViewport: null,
             args: [
                 // '--start-maximized',
                 // '--no-sandbox',
                 // '--disable-setuid-sandbox'
+                // // '--start-maximized',
+                // // '--no-sandbox',
+                // // '--disable-setuid-sandbox'
                 "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage"
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage"
             ]
         });
 
