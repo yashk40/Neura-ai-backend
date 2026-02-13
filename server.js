@@ -13,9 +13,58 @@ app.use(express.json());
 // In-memory storage for requests
 const requests = new Map();
 
+// Thinking mode toggle (default: 'on' means don't skip, 'off' means skip)
+let thinkingMode = 'on';
+
 // Delay helper
 async function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Function to wait for and click Skip Thinking button
+async function waitAndClickSkipButton(page, requestId) {
+    const maxWaitTime = 20000; // 20 seconds
+    const checkInterval = 500; // Check every 500ms
+    const startTime = Date.now();
+
+    while ((Date.now() - startTime) < maxWaitTime) {
+        try {
+            // Search for the Skip Thinking button
+            const skipButton = await page.evaluate(() => {
+                // Look for div with aria-label="Skip Thinking"
+                const skipDiv = document.querySelector('div[aria-label="Skip Thinking"]');
+                if (skipDiv) {
+                    // Find the button inside it
+                    const button = skipDiv.querySelector('button');
+                    if (button) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (skipButton) {
+                // Click the button
+                await page.evaluate(() => {
+                    const skipDiv = document.querySelector('div[aria-label="Skip Thinking"]');
+                    if (skipDiv) {
+                        const button = skipDiv.querySelector('button');
+                        if (button) {
+                            button.click();
+                        }
+                    }
+                });
+                return true; // Button found and clicked
+            }
+        } catch (error) {
+            console.log(`[${requestId}] Error while searching for Skip button:`, error.message);
+        }
+
+        // Wait before next check
+        await delay(checkInterval);
+    }
+
+    return false; // Button not found within 20 seconds
 }
 
 // Core extraction function
@@ -28,16 +77,15 @@ async function generateCode(prompt, requestId) {
         requests.set(requestId, { status: 'processing', code: null, prompt });
 
         browser = await puppeteer.launch({
-            executablePath:"/usr/bin/google-chrome",
-            headless: true,
+            headless: false,
             defaultViewport: null,
             args: [
                 // '--start-maximized',
                 // '--no-sandbox',
                 // '--disable-setuid-sandbox'
                 "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage"
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage"
             ]
         });
 
@@ -67,6 +115,17 @@ async function generateCode(prompt, requestId) {
         await page.keyboard.press('Enter');
 
         await delay(5000);
+
+        // Auto-skip thinking if mode is 'off'
+        if (thinkingMode === 'off') {
+            console.log(`[${requestId}] Thinking mode is OFF - searching for Skip button...`);
+            const skipFound = await waitAndClickSkipButton(page, requestId);
+            if (skipFound) {
+                console.log(`[${requestId}] Skip button clicked successfully`);
+            } else {
+                console.log(`[${requestId}] Skip button not found after 20 seconds`);
+            }
+        }
 
         // Wait for generation to complete
         console.log(`[${requestId}] Waiting for response...`);
@@ -212,14 +271,177 @@ app.get('/response', (req, res) => {
     });
 });
 
+// Endpoint: Toggle thinking mode
+app.get('/thinking', (req, res) => {
+    const { mode } = req.query;
+
+    // If no mode parameter, show HTML interface
+    if (!mode) {
+        const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thinking Mode Toggle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .status {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+        }
+        .status.on {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 2px solid #1976d2;
+        }
+        .status.off {
+            background: #fff3e0;
+            color: #f57c00;
+            border: 2px solid #f57c00;
+        }
+        .status strong {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-on {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-on:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        .btn-off {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .btn-off:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+        }
+        .btn.active {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .info {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: left;
+        }
+        .info strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Thinking Mode Control</h1>
+        <div class="status ${thinkingMode}">
+            <strong>${thinkingMode === 'on' ? '🧠 Thinking Mode: ON' : '⚡ Thinking Mode: OFF'}</strong>
+            <p>${thinkingMode === 'on'
+                ? 'Skip button will NOT be clicked automatically'
+                : 'Skip button will be clicked automatically within 20 seconds'}</p>
+        </div>
+        
+        <div class="buttons">
+            <a href="/thinking?mode=on" class="btn btn-on ${thinkingMode === 'on' ? 'active' : ''}">
+                Turn ON
+            </a>
+            <a href="/thinking?mode=off" class="btn btn-off ${thinkingMode === 'off' ? 'active' : ''}">
+                Turn OFF
+            </a>
+        </div>
+        
+        <div class="info">
+            <strong>ℹ️ How it works:</strong><br>
+            • <strong>ON:</strong> Bot will show thinking process (slower, more detailed)<br>
+            • <strong>OFF:</strong> Bot will skip thinking (faster, auto-clicks Skip button)<br>
+            • The "Skip Thinking" button will be searched for 20 seconds
+        </div>
+    </div>
+</body>
+</html>
+        `;
+        return res.send(html);
+    }
+
+    // Handle mode toggle
+    if (mode !== 'on' && mode !== 'off') {
+        return res.status(400).json({
+            error: 'Invalid mode. Use ?mode=on or ?mode=off',
+            currentMode: thinkingMode
+        });
+    }
+
+    thinkingMode = mode;
+    console.log(`✓ Thinking mode set to: ${thinkingMode.toUpperCase()}`);
+
+    // Redirect back to the main interface
+    res.redirect('/thinking');
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
     res.json({
         message: 'Code Generation API',
         endpoints: {
             '/prompt': 'Submit a prompt (GET with ?prompt=your-prompt-here)',
-            '/response': 'Get generated code (GET with ?id=request-id)'
-        }
+            '/response': 'Get generated code (GET with ?id=request-id)',
+            '/thinking': 'Toggle thinking mode (GET with ?mode=on or ?mode=off)'
+        },
+        currentThinkingMode: thinkingMode
     });
 });
 
@@ -228,4 +450,5 @@ app.listen(PORT, () => {
     console.log(`✓ Server running on http://localhost:${PORT}`);
     console.log(`✓ Submit prompts: http://localhost:${PORT}/prompt?prompt=your-prompt-here`);
     console.log(`✓ Get responses: http://localhost:${PORT}/response?id=request-id`);
+    console.log(`✓ Toggle thinking mode: http://localhost:${PORT}/thinking`);
 });

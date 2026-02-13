@@ -36,8 +36,7 @@ const getConfig = () => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            executablePath:"/usr/bin/google-chrome",
-            headless: true,
+            headless: false,
             defaultViewport: null,
             args: [
                 // '--start-maximized',
