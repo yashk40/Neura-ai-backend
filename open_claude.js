@@ -36,8 +36,8 @@ const getConfig = () => {
     let browser;
     try {
         browser = await puppeteer.launch({
-       executablePath:"/usr/bin/google-chrome",
-            headless: true,
+            //    executablePath:"/usr/bin/google-chrome",
+            headless: false,
             defaultViewport: null,
             args: [
                 // '--start-maximized',
@@ -58,6 +58,25 @@ const getConfig = () => {
 
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36');
+
+        // Auto-login with provided token
+        const AUTH_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAyY2UwYWY0LWZmZTUtNGFmOS04MzliLWMyYmFiMDc2MWI2MCIsImVtYWlsIjoieWt1bWF3YXQwMDZAZ21haWwuY29tIn0.MpMjS3vwVPo_K8iU5cvV6NuxcKTGtaUckCsHgGY9th7SaGQqhqoayRwJSFMJiYOcP9-uM41bgEmSTPay6XuK8Q";
+
+        console.log('Injecting auth token...');
+        try {
+            await page.goto('https://chat.z.ai/login', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+            await page.evaluate((token) => {
+                localStorage.setItem('token', token);
+                localStorage.setItem('access_token', token);
+                document.cookie = `token=${token}; path=/; domain=.chat.z.ai; secure; samesite=strict`;
+                document.cookie = `access_token=${token}; path=/; domain=.chat.z.ai; secure; samesite=strict`;
+            }, AUTH_TOKEN);
+
+            console.log('Token injected.');
+        } catch (e) {
+            console.warn('Failed to inject token (non-fatal):', e.message);
+        }
 
         console.log('Navigating...');
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });

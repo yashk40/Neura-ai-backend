@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
+const path = require('path');
 
 const app = express();
 const PORT = 4000;
@@ -77,9 +78,10 @@ async function generateCode(prompt, requestId) {
         requests.set(requestId, { status: 'processing', code: null, prompt });
 
         browser = await puppeteer.launch({
-            executablePath:"/usr/bin/google-chrome",
-            headless: true,
+            // executablePath:"/usr/bin/google-chrome",
+            headless: false,
             defaultViewport: null,
+            userDataDir: path.join(__dirname, 'user_data'),
             args: [
                 // '--start-maximized',
                 // '--no-sandbox',
@@ -99,12 +101,34 @@ async function generateCode(prompt, requestId) {
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36');
 
+        // Auto-login with provided token
+        const AUTH_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAyY2UwYWY0LWZmZTUtNGFmOS04MzliLWMyYmFiMDc2MWI2MCIsImVtYWlsIjoieWt1bWF3YXQwMDZAZ21haWwuY29tIn0.MpMjS3vwVPo_K8iU5cvV6NuxcKTGtaUckCsHgGY9th7SaGQqhqoayRwJSFMJiYOcP9-uM41bgEmSTPay6XuK8Q";
+
+        console.log(`[${requestId}] Injecting auth token...`);
+        try {
+            // Navigate to the domain first to set localStorage/cookies
+            await page.goto('https://chat.z.ai/login', { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+            await page.evaluate((token) => {
+                localStorage.setItem('token', token);
+                localStorage.setItem('access_token', token);
+                // Try setting common cookie names as well just in case
+                document.cookie = `token=${token}; path=/; domain=.chat.z.ai; secure; samesite=strict`;
+                document.cookie = `access_token=${token}; path=/; domain=.chat.z.ai; secure; samesite=strict`;
+            }, AUTH_TOKEN);
+
+            console.log(`[${requestId}] Token injected.`);
+        } catch (e) {
+            console.warn(`[${requestId}] Failed to inject token (non-fatal):`, e.message);
+        }
+
         console.log(`[${requestId}] Navigating to chat.z.ai...`);
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
         // Wait for input and send
         const inputSel = 'textarea#chat-input, textarea[placeholder*="Message"], textarea';
-        await page.waitForSelector(inputSel, { timeout: 40000 });
+        // Increased timeout to 2 minutes (120000ms) to allow for manual login if needed
+        await page.waitForSelector(inputSel, { timeout: 120000 });
 
         console.log(`[${requestId}] Typing prompt...`);
         await page.click(inputSel);
