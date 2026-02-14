@@ -96,7 +96,7 @@ const getConfig = () => {
         // Wait for generation to complete
         console.log('Monitoring generation completion...');
         let generationComplete = false;
-        const maxWaitTime = 300000; // 5 minutes
+        const maxWaitTime = 900000; // 15 minutes
         const startTime = Date.now();
 
         // Look for the loading dots to disappear

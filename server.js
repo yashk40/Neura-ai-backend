@@ -134,7 +134,7 @@ async function generateCode(prompt, requestId) {
         // Wait for generation to complete
         console.log(`[${requestId}] Waiting for response...`);
         let generationComplete = false;
-        const maxWaitTime = 300000; // 5 minutes
+        const maxWaitTime = 900000; // 5 minutes
         const startTime = Date.now();
 
         while (!generationComplete && (Date.now() - startTime) < maxWaitTime) {
