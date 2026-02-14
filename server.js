@@ -81,7 +81,7 @@ async function generateCode(prompt, requestId) {
             executablePath:"/usr/bin/google-chrome",
             headless: true,
             defaultViewport: null,
-            userDataDir: path.join(__dirname, 'user_data'),
+            // userDataDir: path.join(__dirname, 'user_data'),
             args: [
                 // '--start-maximized',
                 // '--no-sandbox',
