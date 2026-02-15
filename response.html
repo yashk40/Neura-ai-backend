@@ -1,0 +1,1183 @@
+<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<style>
+					body {
+						background-color: white; /* Ensure the iframe has a white background */
+					}
+				</style>
+				<script>
+					const CDN_WHITELIST = [
+						'cdn.jsdelivr.net',
+						'cdnjs.cloudflare.com',
+						'cdn.tailwindcss.com',
+						'unpkg.com',
+						'fonts.googleapis.com',
+						'd3js.org',
+						'cdn.babylonjs.com',
+						'html2canvas.hertzen.com',
+						'code.jquery.com',
+						'cdn.datatables.net',
+						'kit.fontawesome.com',
+						'code.createjs.com',
+						'cdn.plot.ly',
+						'fonts.gstatic.com',
+						'www.rgraph.net',
+						'api.mapbox.com',
+						'polyfill.io',
+						'cdn.quilljs.com',
+						'picsum.photos',
+						'esm.sh'
+					];
+
+					function isUrlInWhitelist(url) {
+						if (!url || typeof url !== 'string') {
+							return false;
+						}
+						try {
+							const urlObj = new URL(url);
+							const hostname = urlObj.hostname;
+							return CDN_WHITELIST.some(domain => hostname === domain);
+						} catch (e) {
+							return false;
+						}
+					}
+
+					function proxyCdnUrl(url) {
+						if (!url || !url.startsWith('http')) {
+							return url;
+						}
+						if (!isUrlInWhitelist(url)) {
+							return url;
+						}
+						if (!url.startsWith('https://artifacts-cdn.chatglm.site/')) {
+							return 'https://artifacts-cdn.chatglm.site/' + url;
+						}
+						return url;
+					}
+
+					const rawCreateElement = document.createElement;
+
+					document.createElement = function (tagName, ...args) {
+						const el = rawCreateElement.call(this, tagName, ...args);
+
+						if (tagName.toLowerCase() === 'script') {
+							const rawSetAttribute = el.setAttribute;
+							const rawGetAttribute = el.getAttribute;
+							let srcValue = '';
+							
+							el.setAttribute = function (name, value) {
+								if (name === 'src' && typeof value === 'string') {
+									value = proxyCdnUrl(value);
+									srcValue = value;
+								}
+								return rawSetAttribute.call(this, name, value);
+							};
+
+							Object.defineProperty(el, 'src', {
+								get: function() {
+									return srcValue || rawGetAttribute.call(this, 'src') || '';
+								},
+								set: function(value) {
+									if (typeof value === 'string') {
+										srcValue = proxyCdnUrl(value);
+										rawSetAttribute.call(this, 'src', srcValue);
+									} else {
+										srcValue = value;
+									}
+								},
+								configurable: true,
+								enumerable: true
+							});
+						}
+
+						if (tagName.toLowerCase() === 'link') {
+							const rawSetAttribute = el.setAttribute;
+							const rawGetAttribute = el.getAttribute;
+							let hrefValue = '';
+							
+							el.setAttribute = function (name, value) {
+								if (name === 'href' && typeof value === 'string') {
+									value = proxyCdnUrl(value);
+									hrefValue = value;
+								}
+								return rawSetAttribute.call(this, name, value);
+							};
+
+							Object.defineProperty(el, 'href', {
+								get: function() {
+									return hrefValue || rawGetAttribute.call(this, 'href') || '';
+								},
+								set: function(value) {
+									if (typeof value === 'string') {
+										hrefValue = proxyCdnUrl(value);
+										rawSetAttribute.call(this, 'href', hrefValue);
+									} else {
+										hrefValue = value;
+									}
+								},
+								configurable: true,
+								enumerable: true
+							});
+						}
+
+						return el;
+					};
+
+					const OriginalXMLHttpRequest = window.XMLHttpRequest;
+					window.XMLHttpRequest = function (...args) {
+						const xhr = new OriginalXMLHttpRequest(...args);
+						const rawOpen = xhr.open;
+
+						xhr.open = function (method, url, ...rest) {
+							if (typeof url === 'string') {
+								const methodUpper = (method || '').toUpperCase();
+								if (methodUpper === 'GET' && isUrlInWhitelist(url)) {
+									url = proxyCdnUrl(url);
+								}
+							}
+							return rawOpen.call(this, method, url, ...rest);
+						};
+
+						return xhr;
+					};
+
+					window.XMLHttpRequest.prototype = OriginalXMLHttpRequest.prototype;
+					Object.setPrototypeOf(window.XMLHttpRequest, OriginalXMLHttpRequest);
+
+					const originalFetch = window.fetch;
+					window.fetch = async function (...args) {
+						if (args.length > 0) {
+							let url = '';
+							let method = 'GET';
+							
+							if (typeof args[0] === 'string') {
+								url = args[0];
+								if (args[1] && args[1].method) {
+									method = args[1].method.toUpperCase();
+								}
+								if (method === 'GET' && isUrlInWhitelist(url)) {
+									args[0] = proxyCdnUrl(url);
+								}
+							} else if (args[0] instanceof Request) {
+								const originalUrl = args[0].url;
+								method = (args[0].method || 'GET').toUpperCase();
+								if (method === 'GET' && isUrlInWhitelist(originalUrl)) {
+									const proxiedUrl = proxyCdnUrl(originalUrl);
+									if (proxiedUrl !== originalUrl) {
+										args[0] = new Request(proxiedUrl, args[0]);
+									}
+								}
+							}
+						}
+						return originalFetch.apply(this, args);
+					};
+				</script>
+			</head>
+			<body>
+				<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID Studio | Creative Direction</title>
+  <script src="https://artifacts-cdn.chatglm.site/https://cdn.tailwindcss.com"></script>
+  <script src="https://artifacts-cdn.chatglm.site/https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <link rel="preconnect" href="https://artifacts-cdn.chatglm.site/https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://artifacts-cdn.chatglm.site/https://fonts.gstatic.com" crossorigin="">
+  <link href="https://artifacts-cdn.chatglm.site/https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --bg-elevated: #121214;
+      --fg: #f0ede6;
+      --fg-muted: #8a8880;
+      --accent: #d4a853;
+      --accent-dim: rgba(212, 168, 83, 0.15);
+      --border: #2a2a2d;
+      --card: #161618;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* Noise overlay */
+    .noise {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Gradient orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #4a6fa5 0%, transparent 70%);
+      bottom: 20%;
+      left: -100px;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, #6b4a8a 0%, transparent 70%);
+      top: 60%;
+      right: 10%;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes lineGrow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.7; }
+    }
+
+    .reveal {
+      opacity: 0;
+    }
+
+    .reveal.active {
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .reveal-delay-1 { animation-delay: 0.1s; }
+    .reveal-delay-2 { animation-delay: 0.2s; }
+    .reveal-delay-3 { animation-delay: 0.3s; }
+    .reveal-delay-4 { animation-delay: 0.4s; }
+    .reveal-delay-5 { animation-delay: 0.5s; }
+
+    /* Hero section */
+    .hero-title {
+      font-size: clamp(3rem, 12vw, 10rem);
+      line-height: 0.9;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* Marquee */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 0;
+    }
+
+    .marquee-content {
+      display: inline-flex;
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee-content span {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 2rem;
+      color: var(--fg-muted);
+    }
+
+    .marquee-content span.highlight {
+      color: var(--accent);
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Project cards */
+    .project-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                  border-color 0.3s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+    }
+
+    .project-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .project-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .project-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10, 10, 11, 0.95), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .project-card:hover .project-overlay {
+      opacity: 1;
+    }
+
+    .project-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .project-card:hover .project-info {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Stats counter */
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+      font-size: 0.875rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--fg);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-primary:hover::before {
+      transform: translateY(0);
+    }
+
+    .btn-primary span,
+    .btn-primary svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.75rem;
+      background: transparent;
+      color: var(--fg);
+      font-weight: 500;
+      font-size: 0.875rem;
+      letter-spacing: 0.03em;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Footer */
+    .footer-link {
+      position: relative;
+      color: var(--fg-muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .footer-link:hover {
+      color: var(--fg);
+    }
+
+    .footer-link:hover::after {
+      width: 100%;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--fg-muted);
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+      }
+      
+      .reveal.active {
+        animation: none;
+      }
+
+      .marquee-content {
+        animation: none;
+      }
+
+      .project-card,
+      .project-card img,
+      .project-overlay,
+      .project-info {
+        transition: none;
+      }
+
+      .orb {
+        animation: none;
+      }
+    }
+
+    /* Focus states */
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Grid lines */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, var(--border) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Noise overlay -->
+  <div class="noise"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-4 lg:px-12 lg:py-6">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <a href="#" class="font-display font-bold text-xl tracking-tight" style="color: var(--fg);">
+        VOID<span style="color: var(--accent);">.</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#work" class="footer-link text-sm tracking-wide">Work</a>
+        <a href="#about" class="footer-link text-sm tracking-wide">About</a>
+        <a href="#services" class="footer-link text-sm tracking-wide">Services</a>
+        <a href="#contact" class="footer-link text-sm tracking-wide">Contact</a>
+      </div>
+      <button class="btn-outline hidden md:flex" id="menuBtn">
+        Let's Talk
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"></path>
+        </svg>
+      </button>
+      <button class="md:hidden p-2" id="mobileMenuBtn" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="fixed inset-0 z-40 hidden" style="background: var(--bg);">
+    <div class="flex flex-col items-center justify-center h-full gap-8">
+      <a href="#work" class="font-display text-3xl font-bold">Work</a>
+      <a href="#about" class="font-display text-3xl font-bold">About</a>
+      <a href="#services" class="font-display text-3xl font-bold">Services</a>
+      <a href="#contact" class="font-display text-3xl font-bold">Contact</a>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center overflow-hidden px-6 lg:px-12">
+    <div class="grid-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    
+    <div class="max-w-7xl mx-auto w-full pt-24">
+      <div class="grid lg:grid-cols-12 gap-8 items-end">
+        <div class="lg:col-span-8">
+          <p class="hero-subtitle reveal mb-4" style="color: var(--fg-muted);">Creative Direction Studio</p>
+          <h1 class="hero-title font-display reveal reveal-delay-1">
+            We craft
+            <br>
+            <span style="color: var(--accent);">digital</span>
+            <br>
+            experiences
+          </h1>
+        </div>
+        <div class="lg:col-span-4 lg:pb-8">
+          <p class="reveal reveal-delay-2 text-lg mb-8" style="color: var(--fg-muted); line-height: 1.7;">
+            A boutique studio specializing in brand identity, digital design, and immersive web experiences that leave lasting impressions.
+          </p>
+          <div class="reveal reveal-delay-3 flex flex-wrap gap-4">
+            <button class="btn-primary">
+              <span>View Projects</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"></path>
+              </svg>
+            </button>
+            <button class="btn-outline">Our Process</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 reveal reveal-delay-5">
+      <span class="text-xs tracking-widest uppercase" style="color: var(--fg-muted);">Scroll</span>
+      <div class="w-px h-12" style="background: linear-gradient(to bottom, var(--accent), transparent);"></div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-container">
+    <div class="marquee-content">
+      <span>Branding</span>
+      <span class="highlight">*</span>
+      <span>Web Design</span>
+      <span class="highlight">*</span>
+      <span>Development</span>
+      <span class="highlight">*</span>
+      <span>Motion</span>
+      <span class="highlight">*</span>
+      <span>Strategy</span>
+      <span class="highlight">*</span>
+      <span>Branding</span>
+      <span class="highlight">*</span>
+      <span>Web Design</span>
+      <span class="highlight">*</span>
+      <span>Development</span>
+      <span class="highlight">*</span>
+      <span>Motion</span>
+      <span class="highlight">*</span>
+      <span>Strategy</span>
+      <span class="highlight">*</span>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <section class="py-24 lg:py-32 px-6 lg:px-12 relative overflow-hidden">
+    <div class="orb orb-3"></div>
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div class="reveal">
+          <p class="stat-number" data-count="147">0</p>
+          <p class="text-sm uppercase tracking-widest mt-2" style="color: var(--fg-muted);">Projects Delivered</p>
+        </div>
+        <div class="reveal reveal-delay-1">
+          <p class="stat-number" data-count="12">0</p>
+          <p class="text-sm uppercase tracking-widest mt-2" style="color: var(--fg-muted);">Years Experience</p>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <p class="stat-number" data-count="38">0</p>
+          <p class="text-sm uppercase tracking-widest mt-2" style="color: var(--fg-muted);">Awards Won</p>
+        </div>
+        <div class="reveal reveal-delay-3">
+          <p class="stat-number" data-count="96">0</p>
+          <p class="text-sm uppercase tracking-widest mt-2" style="color: var(--fg-muted);">Happy Clients</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work Section -->
+  <section id="work" class="py-24 lg:py-32 px-6 lg:px-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-16 gap-6">
+        <div>
+          <p class="reveal text-sm uppercase tracking-widest mb-4" style="color: var(--accent);">Selected Work</p>
+          <h2 class="reveal reveal-delay-1 font-display text-4xl lg:text-6xl font-bold">Featured Projects</h2>
+        </div>
+        <button class="reveal reveal-delay-2 btn-outline self-start lg:self-auto">
+          View All Work
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Project 1 -->
+        <div class="project-card reveal">
+          <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80" alt="Abstract geometric design">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <p class="text-sm uppercase tracking-widest mb-2" style="color: var(--accent);">Brand Identity</p>
+            <h3 class="font-display text-2xl font-bold mb-2">Lumina Labs</h3>
+            <p style="color: var(--fg-muted);">Complete brand overhaul for a biotech startup</p>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1634017839464-5c339bbe3c35?w=800&q=80" alt="Modern web interface">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <p class="text-sm uppercase tracking-widest mb-2" style="color: var(--accent);">Web Platform</p>
+            <h3 class="font-display text-2xl font-bold mb-2">Nexus Finance</h3>
+            <p style="color: var(--fg-muted);">Next-gen banking dashboard experience</p>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card reveal">
+          <img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&q=80" alt="Artistic visual design">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <p class="text-sm uppercase tracking-widest mb-2" style="color: var(--accent);">Digital Campaign</p>
+            <h3 class="font-display text-2xl font-bold mb-2">Ora Collective</h3>
+            <p style="color: var(--fg-muted);">Immersive product launch experience</p>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="project-card reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80" alt="Retro tech aesthetic">
+          <div class="project-overlay"></div>
+          <div class="project-info">
+            <p class="text-sm uppercase tracking-widest mb-2" style="color: var(--accent);">E-Commerce</p>
+            <h3 class="font-display text-2xl font-bold mb-2">Retrograde Audio</h3>
+            <p style="color: var(--fg-muted);">Bespoke shopping experience for audiophiles</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-24 lg:py-32 px-6 lg:px-12 relative" style="background: var(--bg-elevated);">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <p class="reveal text-sm uppercase tracking-widest mb-4" style="color: var(--accent);">What We Do</p>
+        <h2 class="reveal reveal-delay-1 font-display text-4xl lg:text-6xl font-bold">Our Services</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Service 1 -->
+        <div class="reveal p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50 group" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6 transition-colors duration-300" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Brand Strategy</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Deep-dive research and strategic positioning to build brands that resonate with your audience.</p>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="reveal reveal-delay-1 p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M3 9h18M9 21V9"></path>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">UI/UX Design</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Human-centered design that balances aesthetics with function for seamless digital experiences.</p>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="reveal reveal-delay-2 p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Development</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Clean, performant code that brings designs to life with smooth interactions and scalability.</p>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="reveal p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <polygon points="23 7 16 12 23 17 23 7"></polygon>
+              <rect x="1" y="5" width="15" height="14" rx="2"></rect>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Motion Design</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Captivating animations and micro-interactions that add depth and personality to your brand.</p>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="reveal reveal-delay-1 p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Art Direction</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Cohesive visual storytelling across all touchpoints for memorable brand experiences.</p>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="reveal reveal-delay-2 p-8 rounded-lg border transition-all duration-300 hover:border-opacity-50" style="background: var(--card); border-color: var(--border);">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-6" style="background: var(--accent-dim);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            </svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">3D and WebGL</h3>
+          <p style="color: var(--fg-muted); line-height: 1.7;">Immersive 3D experiences that push the boundaries of web technology.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-24 lg:py-32 px-6 lg:px-12 relative overflow-hidden">
+    <div class="orb orb-2" style="top: 20%; left: auto; right: -100px;"></div>
+    <div class="max-w-7xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="reveal text-sm uppercase tracking-widest mb-4" style="color: var(--accent);">About Us</p>
+          <h2 class="reveal reveal-delay-1 font-display text-4xl lg:text-5xl font-bold mb-6">We believe in the power of intentional design</h2>
+          <p class="reveal reveal-delay-2 text-lg mb-6" style="color: var(--fg-muted); line-height: 1.8;">
+            VOID is a collective of designers, developers, and strategists who are passionate about creating digital experiences that matter. We partner with forward-thinking brands to solve complex problems through elegant solutions.
+          </p>
+          <p class="reveal reveal-delay-3 text-lg mb-8" style="color: var(--fg-muted); line-height: 1.8;">
+            Our approach is rooted in curiosity, craftsmanship, and a relentless pursuit of excellence. Every pixel, every interaction, every line of code serves a purpose.
+          </p>
+          <button class="reveal reveal-delay-4 btn-primary">
+            <span>Meet the Team</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="reveal reveal-delay-2 relative">
+          <div class="aspect-square rounded-2xl overflow-hidden" style="background: var(--card); border: 1px solid var(--border);">
+            <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80" alt="Team collaboration" class="w-full h-full object-cover">
+          </div>
+          <div class="absolute -bottom-6 -left-6 p-6 rounded-xl" style="background: var(--accent);">
+            <p class="font-display text-3xl font-bold" style="color: var(--bg);">12+</p>
+            <p class="text-sm" style="color: var(--bg); opacity: 0.8;">Years crafting digital</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="contact" class="py-24 lg:py-32 px-6 lg:px-12 relative overflow-hidden" style="background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg) 100%);">
+    <div class="grid-bg" style="opacity: 0.15;"></div>
+    <div class="max-w-4xl mx-auto text-center relative">
+      <p class="reveal text-sm uppercase tracking-widest mb-4" style="color: var(--accent);">Start a Project</p>
+      <h2 class="reveal reveal-delay-1 font-display text-4xl lg:text-6xl font-bold mb-6">Ready to create something extraordinary?</h2>
+      <p class="reveal reveal-delay-2 text-lg mb-10" style="color: var(--fg-muted); max-width: 600px; margin-left: auto; margin-right: auto;">
+        We're always excited to partner with brands that share our passion for meaningful design. Let's build something great together.
+      </p>
+      <div class="reveal reveal-delay-3 flex flex-wrap justify-center gap-4">
+        <button class="btn-primary">
+          <span>Get in Touch</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"></path>
+          </svg>
+        </button>
+        <button class="btn-outline">hello@void.studio</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-16 px-6 lg:px-12 border-t" style="border-color: var(--border);">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div>
+          <a href="#" class="font-display font-bold text-2xl tracking-tight inline-block mb-4" style="color: var(--fg);">
+            VOID<span style="color: var(--accent);">.</span>
+          </a>
+          <p style="color: var(--fg-muted); line-height: 1.7;">
+            A creative studio crafting digital experiences that matter.
+          </p>
+        </div>
+        <div>
+          <h4 class="font-display font-bold mb-4">Navigation</h4>
+          <ul class="space-y-3">
+            <li><a href="#work" class="footer-link">Work</a></li>
+            <li><a href="#about" class="footer-link">About</a></li>
+            <li><a href="#services" class="footer-link">Services</a></li>
+            <li><a href="#contact" class="footer-link">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-display font-bold mb-4">Social</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="footer-link">Twitter</a></li>
+            <li><a href="#" class="footer-link">Instagram</a></li>
+            <li><a href="#" class="footer-link">Dribbble</a></li>
+            <li><a href="#" class="footer-link">LinkedIn</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-display font-bold mb-4">Contact</h4>
+          <ul class="space-y-3" style="color: var(--fg-muted);">
+            <li>hello@void.studio</li>
+            <li>+1 (555) 123-4567</li>
+            <li>San Francisco, CA</li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t" style="border-color: var(--border);">
+        <p class="text-sm" style="color: var(--fg-muted);">2024 VOID Studio. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" class="footer-link text-sm">Privacy Policy</a>
+          <a href="#" class="footer-link text-sm">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lenis smooth scroll
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Scroll to anchor links smoothly
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          lenis.scrollTo(target, { offset: -100 });
+          // Close mobile menu if open
+          mobileMenu.classList.add('hidden');
+        }
+      });
+    });
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      const isOpen = !mobileMenu.classList.contains('hidden');
+      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+      if (isOpen) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    });
+
+    // Close mobile menu when clicking a link
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+        lenis.start();
+      });
+    });
+
+    // Scroll reveal animation
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          
+          // Animate counters when they come into view
+          if (entry.target.querySelector('.stat-number')) {
+            animateCounter(entry.target.querySelector('.stat-number'));
+          }
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Counter animation
+    function animateCounter(element) {
+      if (element.dataset.animated) return;
+      element.dataset.animated = 'true';
+      
+      const target = parseInt(element.dataset.count);
+      const duration = 2000;
+      const start = performance.now();
+      
+      function updateCounter(currentTime) {
+        const elapsed = currentTime - start;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = Math.floor(easeOutQuart * target);
+        
+        element.textContent = current;
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        } else {
+          element.textContent = target;
+        }
+      }
+      
+      requestAnimationFrame(updateCounter);
+    }
+
+    // Parallax effect on orbs
+    let ticking = false;
+    
+    lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }) => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const orbs = document.querySelectorAll('.orb');
+          orbs.forEach((orb, index) => {
+            const speed = (index + 1) * 0.05;
+            orb.style.transform = `translateY(${scroll * speed}px)`;
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // Button hover effects with magnetic pull
+    const buttons = document.querySelectorAll('.btn-primary, .btn-outline');
+    
+    buttons.forEach(button => {
+      button.addEventListener('mousemove', (e) => {
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        
+        button.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px)`;
+      });
+      
+      button.addEventListener('mouseleave', () => {
+        button.style.transform = 'translate(0, 0)';
+      });
+    });
+
+    // Project card tilt effect
+    const cards = document.querySelectorAll('.project-card');
+    
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        
+        card.style.transform = `perspective(1000px) rotateY(${x * 5}deg) rotateX(${-y * 5}deg) translateY(-8px)`;
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateY(0) rotateX(0) translateY(0)';
+      });
+    });
+
+    // Respect reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    
+    if (prefersReducedMotion.matches) {
+      // Disable Lenis smooth scroll for users who prefer reduced motion
+      lenis.destroy();
+      document.documentElement.style.scrollBehavior = 'auto';
+      
+      // Show all reveal elements immediately
+      document.querySelectorAll('.reveal').forEach(el => {
+        el.classList.add('active');
+      });
+    }
+
+    // Navigation background on scroll
+    const nav = document.querySelector('nav');
+    let lastScroll = 0;
+    
+    lenis.on('scroll', ({ scroll }) => {
+      if (scroll > 100) {
+        nav.style.background = 'rgba(10, 10, 11, 0.9)';
+        nav.style.backdropFilter = 'blur(10px)';
+      } else {
+        nav.style.background = 'transparent';
+        nav.style.backdropFilter = 'none';
+      }
+      lastScroll = scroll;
+    });
+  </script>
+
+</body></html>

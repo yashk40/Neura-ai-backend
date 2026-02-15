@@ -268,7 +268,7 @@ app.get('/response', (req, res) => {
     const { id } = req.query;
 
     if (!id) {
-        const filePath = path.join(__dirname, 'response.txt');
+        const filePath = path.join(__dirname, 'response.html');
         if (!fs.existsSync(filePath)) return res.status(404).send('response.txt not found');
         return res.type('text/plain').send(fs.readFileSync(filePath, 'utf8'));
     }
