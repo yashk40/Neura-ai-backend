@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
 const path = require('path');
@@ -262,12 +263,14 @@ app.get('/prompt', async (req, res) => {
     });
 });
 
-// Endpoint: Get response
+// Endpoint: Get response (no id = send response.txt; with id = get request by id)
 app.get('/response', (req, res) => {
     const { id } = req.query;
 
     if (!id) {
-        return res.status(400).json({ error: 'ID parameter is required' });
+        const filePath = path.join(__dirname, 'response.txt');
+        if (!fs.existsSync(filePath)) return res.status(404).send('response.txt not found');
+        return res.type('text/plain').send(fs.readFileSync(filePath, 'utf8'));
     }
 
     const request = requests.get(id);
@@ -297,6 +300,13 @@ app.get('/response', (req, res) => {
         prompt: request.prompt,
         completedAt: request.completedAt
     });
+});
+
+// Endpoint: Send component.txt
+app.get('/component', (req, res) => {
+    const filePath = path.join(__dirname, 'component.txt');
+    if (!fs.existsSync(filePath)) return res.status(404).send('component.txt not found');
+    return res.type('text/plain').send(fs.readFileSync(filePath, 'utf8'));
 });
 
 // Endpoint: Toggle thinking mode
@@ -466,7 +476,8 @@ app.get('/', (req, res) => {
         message: 'Code Generation API',
         endpoints: {
             '/prompt': 'Submit a prompt (GET with ?prompt=your-prompt-here)',
-            '/response': 'Get generated code (GET with ?id=request-id)',
+            '/response': 'Get response.txt (GET) or generated code (GET with ?id=request-id)',
+            '/component': 'Get component.txt (GET)',
             '/thinking': 'Toggle thinking mode (GET with ?mode=on or ?mode=off)'
         },
         currentThinkingMode: thinkingMode

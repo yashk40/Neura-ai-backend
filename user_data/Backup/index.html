@@ -1,0 +1,1181 @@
+<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<style>
+					body {
+						background-color: white; /* Ensure the iframe has a white background */
+					}
+				</style>
+				<script>
+					const CDN_WHITELIST = [
+						'cdn.jsdelivr.net',
+						'cdnjs.cloudflare.com',
+						'cdn.tailwindcss.com',
+						'unpkg.com',
+						'fonts.googleapis.com',
+						'd3js.org',
+						'cdn.babylonjs.com',
+						'html2canvas.hertzen.com',
+						'code.jquery.com',
+						'cdn.datatables.net',
+						'kit.fontawesome.com',
+						'code.createjs.com',
+						'cdn.plot.ly',
+						'fonts.gstatic.com',
+						'www.rgraph.net',
+						'api.mapbox.com',
+						'polyfill.io',
+						'cdn.quilljs.com',
+						'picsum.photos',
+						'esm.sh'
+					];
+
+					function isUrlInWhitelist(url) {
+						if (!url || typeof url !== 'string') {
+							return false;
+						}
+						try {
+							const urlObj = new URL(url);
+							const hostname = urlObj.hostname;
+							return CDN_WHITELIST.some(domain => hostname === domain);
+						} catch (e) {
+							return false;
+						}
+					}
+
+					function proxyCdnUrl(url) {
+						if (!url || !url.startsWith('http')) {
+							return url;
+						}
+						if (!isUrlInWhitelist(url)) {
+							return url;
+						}
+						if (!url.startsWith('https://artifacts-cdn.chatglm.site/')) {
+							return 'https://artifacts-cdn.chatglm.site/' + url;
+						}
+						return url;
+					}
+
+					const rawCreateElement = document.createElement;
+
+					document.createElement = function (tagName, ...args) {
+						const el = rawCreateElement.call(this, tagName, ...args);
+
+						if (tagName.toLowerCase() === 'script') {
+							const rawSetAttribute = el.setAttribute;
+							const rawGetAttribute = el.getAttribute;
+							let srcValue = '';
+							
+							el.setAttribute = function (name, value) {
+								if (name === 'src' && typeof value === 'string') {
+									value = proxyCdnUrl(value);
+									srcValue = value;
+								}
+								return rawSetAttribute.call(this, name, value);
+							};
+
+							Object.defineProperty(el, 'src', {
+								get: function() {
+									return srcValue || rawGetAttribute.call(this, 'src') || '';
+								},
+								set: function(value) {
+									if (typeof value === 'string') {
+										srcValue = proxyCdnUrl(value);
+										rawSetAttribute.call(this, 'src', srcValue);
+									} else {
+										srcValue = value;
+									}
+								},
+								configurable: true,
+								enumerable: true
+							});
+						}
+
+						if (tagName.toLowerCase() === 'link') {
+							const rawSetAttribute = el.setAttribute;
+							const rawGetAttribute = el.getAttribute;
+							let hrefValue = '';
+							
+							el.setAttribute = function (name, value) {
+								if (name === 'href' && typeof value === 'string') {
+									value = proxyCdnUrl(value);
+									hrefValue = value;
+								}
+								return rawSetAttribute.call(this, name, value);
+							};
+
+							Object.defineProperty(el, 'href', {
+								get: function() {
+									return hrefValue || rawGetAttribute.call(this, 'href') || '';
+								},
+								set: function(value) {
+									if (typeof value === 'string') {
+										hrefValue = proxyCdnUrl(value);
+										rawSetAttribute.call(this, 'href', hrefValue);
+									} else {
+										hrefValue = value;
+									}
+								},
+								configurable: true,
+								enumerable: true
+							});
+						}
+
+						return el;
+					};
+
+					const OriginalXMLHttpRequest = window.XMLHttpRequest;
+					window.XMLHttpRequest = function (...args) {
+						const xhr = new OriginalXMLHttpRequest(...args);
+						const rawOpen = xhr.open;
+
+						xhr.open = function (method, url, ...rest) {
+							if (typeof url === 'string') {
+								const methodUpper = (method || '').toUpperCase();
+								if (methodUpper === 'GET' && isUrlInWhitelist(url)) {
+									url = proxyCdnUrl(url);
+								}
+							}
+							return rawOpen.call(this, method, url, ...rest);
+						};
+
+						return xhr;
+					};
+
+					window.XMLHttpRequest.prototype = OriginalXMLHttpRequest.prototype;
+					Object.setPrototypeOf(window.XMLHttpRequest, OriginalXMLHttpRequest);
+
+					const originalFetch = window.fetch;
+					window.fetch = async function (...args) {
+						if (args.length > 0) {
+							let url = '';
+							let method = 'GET';
+							
+							if (typeof args[0] === 'string') {
+								url = args[0];
+								if (args[1] && args[1].method) {
+									method = args[1].method.toUpperCase();
+								}
+								if (method === 'GET' && isUrlInWhitelist(url)) {
+									args[0] = proxyCdnUrl(url);
+								}
+							} else if (args[0] instanceof Request) {
+								const originalUrl = args[0].url;
+								method = (args[0].method || 'GET').toUpperCase();
+								if (method === 'GET' && isUrlInWhitelist(originalUrl)) {
+									const proxiedUrl = proxyCdnUrl(originalUrl);
+									if (proxiedUrl !== originalUrl) {
+										args[0] = new Request(proxiedUrl, args[0]);
+									}
+								}
+							}
+						}
+						return originalFetch.apply(this, args);
+					};
+				</script>
+			</head>
+			<body>
+				<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOID Studio - Digital Craft</title>
+  <script src="https://artifacts-cdn.chatglm.site/https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://artifacts-cdn.chatglm.site/https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://artifacts-cdn.chatglm.site/https://fonts.gstatic.com" crossorigin="">
+  <link href="https://artifacts-cdn.chatglm.site/https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://artifacts-cdn.chatglm.site/https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --bg-elevated: #111113;
+      --fg: #f4f4f5;
+      --muted: #71717a;
+      --accent: #f97316;
+      --accent-glow: rgba(249, 115, 22, 0.4);
+      --card: #18181b;
+      --border: #27272a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    .font-display {
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* Background noise texture */
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Gradient orbs */
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: linear-gradient(135deg, var(--accent) 0%, #dc2626 100%);
+      top: -200px;
+      right: -200px;
+      opacity: 0.15;
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+      bottom: 20%;
+      left: -150px;
+      opacity: 0.1;
+    }
+
+    /* Grid pattern */
+    .grid-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(249, 115, 22, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(249, 115, 22, 0.03) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+    }
+
+    /* Navigation */
+    .nav-link {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--accent);
+      transform: translateX(-101%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-link:hover::after {
+      transform: translateX(0);
+    }
+
+    /* Hero title animation */
+    .hero-char {
+      display: inline-block;
+      transform: translateY(100%);
+      opacity: 0;
+      animation: charReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes charReveal {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Reveal animations */
+    .reveal-up {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-up.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal-scale.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Project cards */
+    .project-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-glow) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .project-card:hover::before {
+      opacity: 1;
+    }
+
+    .project-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(249, 115, 22, 0.3);
+    }
+
+    .project-card:hover .project-image {
+      transform: scale(1.05);
+    }
+
+    .project-image {
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Button styles */
+    .btn-primary {
+      position: relative;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 16px 32px;
+      font-weight: 600;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #fb923c 0%, var(--accent) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .btn-primary span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      padding: 16px 32px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      background: rgba(249, 115, 22, 0.1);
+    }
+
+    /* Stats counter */
+    .stat-number {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--fg) 0%, var(--muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Marquee */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .marquee-content {
+      display: inline-flex;
+      animation: marquee 30s linear infinite;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* Cursor follower */
+    .cursor-follower {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+      transform: translate(-50%, -50%);
+    }
+
+    .cursor-follower.hovering {
+      width: 60px;
+      height: 60px;
+      background: var(--accent-glow);
+    }
+
+    /* Focus states */
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      
+      .marquee-content {
+        animation: none;
+      }
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      width: 32px;
+      height: 20px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .hamburger span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--fg);
+      transition: all 0.3s ease;
+    }
+
+    .hamburger span:nth-child(1) { top: 0; }
+    .hamburger span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+    .hamburger span:nth-child(3) { bottom: 0; }
+
+    .hamburger.active span:nth-child(1) {
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      bottom: 50%;
+      transform: translateY(50%) rotate(-45deg);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Noise overlay -->
+  <div class="noise-overlay"></div>
+  
+  <!-- Custom cursor -->
+  <div class="cursor-follower hidden md:block"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-6">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="#" class="font-display font-bold text-xl tracking-tight">
+        VOID<span class="text-[var(--accent)]">.</span>
+      </a>
+      
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-10">
+        <a href="#work" class="nav-link text-sm tracking-wide">Work</a>
+        <a href="#about" class="nav-link text-sm tracking-wide">About</a>
+        <a href="#services" class="nav-link text-sm tracking-wide">Services</a>
+        <a href="#contact" class="btn-primary text-sm">
+          <span>Get in Touch</span>
+        </a>
+      </div>
+      
+      <!-- Mobile hamburger -->
+      <button class="hamburger md:hidden" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu md:hidden">
+    <a href="#work" class="font-display text-3xl font-bold mobile-link">Work</a>
+    <a href="#about" class="font-display text-3xl font-bold mobile-link">About</a>
+    <a href="#services" class="font-display text-3xl font-bold mobile-link">Services</a>
+    <a href="#contact" class="font-display text-3xl font-bold text-[var(--accent)] mobile-link">Contact</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center overflow-hidden">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="grid-pattern"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12 pt-32 pb-20">
+      <div class="max-w-5xl">
+        <div class="overflow-hidden mb-6">
+          <p class="text-[var(--accent)] text-sm md:text-base tracking-widest uppercase hero-line" style="animation: charReveal 0.6s 0.2s forwards; opacity: 0; transform: translateY(20px);">
+            Digital Design Studio
+          </p>
+        </div>
+        
+        <h1 class="font-display font-extrabold text-[clamp(2.5rem,10vw,8rem)] leading-[0.9] tracking-tight mb-8">
+          <span class="block overflow-hidden">
+            <span class="hero-title">We craft</span>
+          </span>
+          <span class="block overflow-hidden">
+            <span class="hero-title">digital</span>
+          </span>
+          <span class="block overflow-hidden">
+            <span class="hero-title text-[var(--accent)]">experiences</span>
+          </span>
+        </h1>
+        
+        <div class="overflow-hidden max-w-xl">
+          <p class="text-lg md:text-xl text-[var(--muted)] leading-relaxed hero-desc" style="opacity: 0; transform: translateY(30px);">
+            A multidisciplinary studio at the intersection of design, technology, and storytelling. We build brands and products that resonate.
+          </p>
+        </div>
+        
+        <div class="flex flex-wrap gap-4 mt-10 hero-buttons" style="opacity: 0; transform: translateY(30px);">
+          <a href="#work" class="btn-primary">
+            <span>View Projects</span>
+          </a>
+          <a href="#about" class="btn-outline">
+            Learn More
+          </a>
+        </div>
+      </div>
+      
+      <!-- Floating badge -->
+      <div class="absolute bottom-20 right-6 md:right-12 hidden lg:block hero-badge" style="opacity: 0; transform: translateY(20px);">
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">
+          <p class="text-xs text-[var(--muted)] mb-2">Available for</p>
+          <p class="font-display font-bold text-lg">Q1 2025</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+      <span class="text-xs text-[var(--muted)] tracking-widest uppercase">Scroll</span>
+      <div class="w-px h-12 bg-gradient-to-b from-[var(--accent)] to-transparent animate-pulse"></div>
+    </div>
+  </section>
+
+  <!-- Marquee Section -->
+  <section class="py-12 border-y border-[var(--border)] bg-[var(--bg-elevated)]">
+    <div class="marquee-container">
+      <div class="marquee-content">
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Branding</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Web Design</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Development</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Motion</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Branding</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Web Design</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Development</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+        <span class="font-display text-4xl md:text-6xl font-bold text-[var(--muted)] opacity-20 mx-8">Motion</span>
+        <span class="text-[var(--accent)] text-4xl md:text-6xl mx-8">/</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work Section -->
+  <section id="work" class="py-32 relative">
+    <div class="gradient-orb orb-2" style="top: 50%; right: -100px;"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div>
+          <p class="text-[var(--accent)] text-sm tracking-widest uppercase mb-4 reveal-up">Selected Work</p>
+          <h2 class="font-display font-extrabold text-4xl md:text-6xl tracking-tight reveal-up">Featured Projects</h2>
+        </div>
+        <a href="#" class="btn-outline text-sm reveal-up">View All Projects</a>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Project 1 -->
+        <div class="project-card reveal-up cursor-pointer" data-hover="">
+          <div class="aspect-[4/3] overflow-hidden">
+            <div class="project-image w-full h-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+              <svg class="w-24 h-24 text-[var(--accent)] opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
+                <line x1="12" y1="22" x2="12" y2="15.5"></line>
+                <polyline points="22 8.5 12 15.5 2 8.5"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-xs text-[var(--accent)] tracking-wider uppercase">Branding</span>
+              <span class="w-1 h-1 rounded-full bg-[var(--muted)]"></span>
+              <span class="text-xs text-[var(--muted)]">2024</span>
+            </div>
+            <h3 class="font-display font-bold text-xl mb-2">Nexus Protocol</h3>
+            <p class="text-[var(--muted)] text-sm">Complete brand identity for a Web3 infrastructure company</p>
+          </div>
+        </div>
+        
+        <!-- Project 2 -->
+        <div class="project-card reveal-up cursor-pointer" data-hover="" style="transition-delay: 0.1s;">
+          <div class="aspect-[4/3] overflow-hidden">
+            <div class="project-image w-full h-full bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 flex items-center justify-center">
+              <svg class="w-24 h-24 text-violet-400 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-xs text-[var(--accent)] tracking-wider uppercase">Web Design</span>
+              <span class="w-1 h-1 rounded-full bg-[var(--muted)]"></span>
+              <span class="text-xs text-[var(--muted)]">2024</span>
+            </div>
+            <h3 class="font-display font-bold text-xl mb-2">Terraform Labs</h3>
+            <p class="text-[var(--muted)] text-sm">Interactive platform for climate tech startup</p>
+          </div>
+        </div>
+        
+        <!-- Project 3 -->
+        <div class="project-card reveal-up cursor-pointer" data-hover="" style="transition-delay: 0.2s;">
+          <div class="aspect-[4/3] overflow-hidden">
+            <div class="project-image w-full h-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+              <svg class="w-24 h-24 text-emerald-400 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <path d="M3 9h18"></path>
+                <path d="M9 21V9"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-xs text-[var(--accent)] tracking-wider uppercase">Development</span>
+              <span class="w-1 h-1 rounded-full bg-[var(--muted)]"></span>
+              <span class="text-xs text-[var(--muted)]">2023</span>
+            </div>
+            <h3 class="font-display font-bold text-xl mb-2">Cipher Finance</h3>
+            <p class="text-[var(--muted)] text-sm">DeFi dashboard with real-time analytics</p>
+          </div>
+        </div>
+        
+        <!-- Project 4 -->
+        <div class="project-card reveal-up cursor-pointer" data-hover="" style="transition-delay: 0.3s;">
+          <div class="aspect-[4/3] overflow-hidden">
+            <div class="project-image w-full h-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+              <svg class="w-24 h-24 text-amber-400 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                <path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"></path>
+                <path d="M12 12l9-4.5"></path>
+                <path d="M12 12v9"></path>
+                <path d="M12 12L3 7.5"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <span class="text-xs text-[var(--accent)] tracking-wider uppercase">Motion</span>
+              <span class="w-1 h-1 rounded-full bg-[var(--muted)]"></span>
+              <span class="text-xs text-[var(--muted)]">2023</span>
+            </div>
+            <h3 class="font-display font-bold text-xl mb-2">Kinetic Studios</h3>
+            <p class="text-[var(--muted)] text-sm">Brand motion system for creative agency</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-32 border-y border-[var(--border)] bg-[var(--bg-elevated)]">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+        <div class="text-center reveal-up">
+          <p class="stat-number" data-count="147">0</p>
+          <p class="text-[var(--muted)] mt-2 text-sm">Projects Delivered</p>
+        </div>
+        <div class="text-center reveal-up" style="transition-delay: 0.1s;">
+          <p class="stat-number" data-count="12">0</p>
+          <p class="text-[var(--muted)] mt-2 text-sm">Years Experience</p>
+        </div>
+        <div class="text-center reveal-up" style="transition-delay: 0.2s;">
+          <p class="stat-number" data-count="34">0</p>
+          <p class="text-[var(--muted)] mt-2 text-sm">Team Members</p>
+        </div>
+        <div class="text-center reveal-up" style="transition-delay: 0.3s;">
+          <p class="stat-number" data-count="98">0</p>
+          <p class="text-[var(--muted)] mt-2 text-sm">Client Satisfaction</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="py-32 relative">
+    <div class="grid-pattern opacity-50"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p class="text-[var(--accent)] text-sm tracking-widest uppercase mb-4 reveal-up">About Us</p>
+          <h2 class="font-display font-extrabold text-4xl md:text-5xl tracking-tight mb-8 reveal-up">
+            We believe in the power of intentional design
+          </h2>
+          <div class="space-y-6 text-[var(--muted)] text-lg leading-relaxed">
+            <p class="reveal-up">
+              Founded in 2012, VOID has evolved from a small design practice into a full-service creative studio. We partner with forward-thinking companies to build digital products and brand identities that stand the test of time.
+            </p>
+            <p class="reveal-up" style="transition-delay: 0.1s;">
+              Our approach combines strategic thinking with craft excellence. Every pixel, every interaction, every word serves a purpose. We don't chase trends—we create timeless work.
+            </p>
+          </div>
+          
+          <div class="mt-10 reveal-up" style="transition-delay: 0.2s;">
+            <a href="#contact" class="btn-primary inline-block">
+              <span>Start a Project</span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="relative reveal-scale">
+          <div class="aspect-square bg-[var(--card)] rounded-2xl border border-[var(--border)] p-8 flex items-center justify-center">
+            <div class="text-center">
+              <div class="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-[var(--accent)] to-red-500 flex items-center justify-center">
+                <span class="font-display font-extrabold text-4xl text-[var(--bg)]">V</span>
+              </div>
+              <p class="font-display font-bold text-2xl">VOID Studio</p>
+              <p class="text-[var(--muted)] mt-2">Est. 2012</p>
+            </div>
+          </div>
+          
+          <!-- Decorative elements -->
+          <div class="absolute -top-4 -right-4 w-24 h-24 border border-[var(--accent)] rounded-xl opacity-30"></div>
+          <div class="absolute -bottom-4 -left-4 w-32 h-32 border border-[var(--border)] rounded-xl opacity-30"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="py-32 bg-[var(--bg-elevated)]">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="text-center mb-16">
+        <p class="text-[var(--accent)] text-sm tracking-widest uppercase mb-4 reveal-up">What We Do</p>
+        <h2 class="font-display font-extrabold text-4xl md:text-6xl tracking-tight reveal-up">Our Services</h2>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Service 1 -->
+        <div class="group bg-[var(--card)] border border-[var(--border)] rounded-xl p-8 transition-all duration-500 hover:border-[var(--accent)] reveal-up" data-hover="">
+          <div class="w-14 h-14 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-6 transition-all duration-500 group-hover:bg-[var(--accent)]/20">
+            <svg class="w-7 h-7 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Brand Strategy</h3>
+          <p class="text-[var(--muted)] text-sm leading-relaxed">Research, positioning, naming, and visual identity systems that create lasting impressions.</p>
+        </div>
+        
+        <!-- Service 2 -->
+        <div class="group bg-[var(--card)] border border-[var(--border)] rounded-xl p-8 transition-all duration-500 hover:border-[var(--accent)] reveal-up" data-hover="" style="transition-delay: 0.1s;">
+          <div class="w-14 h-14 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-6 transition-all duration-500 group-hover:bg-[var(--accent)]/20">
+            <svg class="w-7 h-7 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Web Development</h3>
+          <p class="text-[var(--muted)] text-sm leading-relaxed">High-performance websites and web applications built with modern technologies.</p>
+        </div>
+        
+        <!-- Service 3 -->
+        <div class="group bg-[var(--card)] border border-[var(--border)] rounded-xl p-8 transition-all duration-500 hover:border-[var(--accent)] reveal-up" data-hover="" style="transition-delay: 0.2s;">
+          <div class="w-14 h-14 rounded-xl bg-[var(--accent)]/10 flex items-center justify-center mb-6 transition-all duration-500 group-hover:bg-[var(--accent)]/20">
+            <svg class="w-7 h-7 text-[var(--accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <h3 class="font-display font-bold text-xl mb-3">Motion Design</h3>
+          <p class="text-[var(--muted)] text-sm leading-relaxed">Animations, micro-interactions, and video content that bring brands to life.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-32 relative overflow-hidden">
+    <div class="gradient-orb orb-1" style="opacity: 0.1;"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-[var(--accent)] text-sm tracking-widest uppercase mb-4 reveal-up">Get in Touch</p>
+        <h2 class="font-display font-extrabold text-4xl md:text-6xl tracking-tight mb-8 reveal-up">
+          Let's create something remarkable together
+        </h2>
+        <p class="text-[var(--muted)] text-lg mb-10 reveal-up">
+          Have a project in mind? We'd love to hear about it. Send us a message and we'll get back to you within 24 hours.
+        </p>
+        
+        <form class="space-y-6 reveal-up" id="contact-form">
+          <div class="grid md:grid-cols-2 gap-6">
+            <input type="text" placeholder="Your Name" required="" class="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-6 py-4 text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--accent)] transition-colors">
+            <input type="email" placeholder="Email Address" required="" class="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-6 py-4 text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--accent)] transition-colors">
+          </div>
+          <textarea placeholder="Tell us about your project" rows="5" required="" class="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-6 py-4 text-[var(--fg)] placeholder-[var(--muted)] focus:outline-none focus:border-[var(--accent)] transition-colors resize-none"></textarea>
+          <button type="submit" class="btn-primary w-full md:w-auto">
+            <span>Send Message</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 border-t border-[var(--border)]">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <span class="font-display font-bold text-lg">VOID</span>
+          <span class="text-[var(--accent)]">.</span>
+        </div>
+        
+        <div class="flex items-center gap-8">
+          <a href="#" class="text-[var(--muted)] hover:text-[var(--fg)] transition-colors text-sm">Twitter</a>
+          <a href="#" class="text-[var(--muted)] hover:text-[var(--fg)] transition-colors text-sm">LinkedIn</a>
+          <a href="#" class="text-[var(--muted)] hover:text-[var(--fg)] transition-colors text-sm">Dribbble</a>
+          <a href="#" class="text-[var(--muted)] hover:text-[var(--fg)] transition-colors text-sm">Instagram</a>
+        </div>
+        
+        <p class="text-[var(--muted)] text-sm">2024 VOID Studio. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Initialize Lenis smooth scroll
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // Connect Lenis to scroll reveal animations
+    lenis.on('scroll', () => {
+      revealOnScroll();
+    });
+
+    // Custom cursor
+    const cursor = document.querySelector('.cursor-follower');
+    let cursorX = 0;
+    let cursorY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    });
+
+    function animateCursor() {
+      cursorX += (targetX - cursorX) * 0.15;
+      cursorY += (targetY - cursorY) * 0.15;
+      
+      if (cursor) {
+        cursor.style.left = cursorX + 'px';
+        cursor.style.top = cursorY + 'px';
+      }
+      
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Cursor hover effect
+    document.querySelectorAll('[data-hover], .project-card, .btn-primary, .btn-outline').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        if (cursor) cursor.classList.add('hovering');
+      });
+      el.addEventListener('mouseleave', () => {
+        if (cursor) cursor.classList.remove('hovering');
+      });
+    });
+
+    // Mobile menu toggle
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Hero animations
+    document.addEventListener('DOMContentLoaded', () => {
+      // Staggered title reveal
+      const heroTitles = document.querySelectorAll('.hero-title');
+      heroTitles.forEach((title, index) => {
+        const text = title.textContent;
+        title.innerHTML = '';
+        
+        text.split('').forEach((char, charIndex) => {
+          const span = document.createElement('span');
+          span.className = 'hero-char';
+          span.textContent = char === ' ' ? '\u00A0' : char;
+          span.style.animationDelay = `${0.3 + index * 0.15 + charIndex * 0.03}s`;
+          title.appendChild(span);
+        });
+      });
+
+      // Description animation
+      const desc = document.querySelector('.hero-desc');
+      if (desc) {
+        setTimeout(() => {
+          desc.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+          desc.style.opacity = '1';
+          desc.style.transform = 'translateY(0)';
+        }, 800);
+      }
+
+      // Buttons animation
+      const buttons = document.querySelector('.hero-buttons');
+      if (buttons) {
+        setTimeout(() => {
+          buttons.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+          buttons.style.opacity = '1';
+          buttons.style.transform = 'translateY(0)';
+        }, 1000);
+      }
+
+      // Badge animation
+      const badge = document.querySelector('.hero-badge');
+      if (badge) {
+        setTimeout(() => {
+          badge.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+          badge.style.opacity = '1';
+          badge.style.transform = 'translateY(0)';
+        }, 1200);
+      }
+    });
+
+    // Scroll reveal
+    function revealOnScroll() {
+      const reveals = document.querySelectorAll('.reveal-up, .reveal-scale');
+      
+      reveals.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        
+        if (rect.top < windowHeight * 0.85) {
+          el.classList.add('active');
+        }
+      });
+    }
+
+    // Initial check
+    revealOnScroll();
+
+    // Counter animation
+    function animateCounters() {
+      const counters = document.querySelectorAll('[data-count]');
+      
+      counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const rect = counter.getBoundingClientRect();
+        
+        if (rect.top < window.innerHeight * 0.8 && !counter.classList.contains('counted')) {
+          counter.classList.add('counted');
+          
+          let current = 0;
+          const increment = target / 60;
+          const duration = 1500;
+          const stepTime = duration / 60;
+          
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              counter.textContent = target + (counter.getAttribute('data-count') === '98' ? '%' : '+');
+              clearInterval(timer);
+            } else {
+              counter.textContent = Math.floor(current);
+            }
+          }, stepTime);
+        }
+      });
+    }
+
+    // Connect counter animation to Lenis scroll
+    lenis.on('scroll', animateCounters);
+    animateCounters();
+
+    // Form submission
+    document.getElementById('contact-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      
+      btn.innerHTML = '<span>Sending...</span>';
+      btn.disabled = true;
+      
+      setTimeout(() => {
+        btn.innerHTML = '<span>Message Sent!</span>';
+        btn.style.background = '#22c55e';
+        
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+          btn.style.background = '';
+          btn.disabled = false;
+          e.target.reset();
+        }, 2000);
+      }, 1500);
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          lenis.scrollTo(target, {
+            offset: -80,
+            duration: 1.5,
+          });
+        }
+      });
+    });
+
+    // Parallax effect on orbs
+    lenis.on('scroll', ({ scroll }) => {
+      const orbs = document.querySelectorAll('.gradient-orb');
+      orbs.forEach((orb, index) => {
+        const speed = index === 0 ? 0.1 : 0.05;
+        orb.style.transform = `translateY(${scroll * speed}px)`;
+      });
+    });
+  </script>
+
+</body></html>
